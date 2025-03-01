@@ -41,7 +41,7 @@ class Main extends PluginBase {
         $ver = $this->getDescription()->getVersion();
 
         if (isset($map[0])) {
-            if ($pluginName !== "TopupRank" or $map[0] !== "VsrStudio" or $ver !== "1.0.1-BETA") {
+            if ($pluginName !== "TopupRank" or $map[0] !== "VsrStudio" or $ver !== "1.2.0-BETA") {
                 $this->getLogger()->emergency("§cPlugin info for $pluginName has been changed. Please restore the correct plugin.yml: author should be \"VsrStudio\", version should be \"1.0.1-BETA\", and plugin name should be \"TopupRank\".");
                 $this->getServer()->shutdown();
             }
