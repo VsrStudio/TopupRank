@@ -63,6 +63,10 @@ class TopupForm {
             }
 
             $this->plugin->getOrderManager()->addOrder($gamertag, $rank, $phone, $method);
+            $this->plugin->getDiscordWebhook()->sendTopup($player->getName(),
+                                                          $rank,
+                                                          $phone,
+                                                          $method);
             $player->sendMessage($lang->translate("rank_purchased", ["rank" => $rank]));
 
             foreach ($this->plugin->getServer()->getOnlinePlayers() as $onlinePlayer) {
