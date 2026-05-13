@@ -74,6 +74,23 @@ class OrderManager {
     }
 
     /**
+    * GET ORDER BY ID
+    */
+    public function getOrderById(
+        string $orderId
+    ): ?array {
+        foreach ($this->orders as $order) {
+            if (            
+                strtolower($order["id"]) ===            
+                strtolower($orderId)       
+            ) {            
+                return $order;        
+            }    
+        }    
+        return null;
+    }
+
+    /**
      * APPROVE
      */
     public function approveOrder(array $order): void {
