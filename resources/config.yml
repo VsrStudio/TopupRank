@@ -1,4 +1,5 @@
 default_language: "id"
+discord-webhook: "https://discord.com/api/webhooks/xxxxx"
 ranks:
   §eELITE:
     price: 15.000
