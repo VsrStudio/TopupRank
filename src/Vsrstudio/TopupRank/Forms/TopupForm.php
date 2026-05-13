@@ -118,10 +118,12 @@ class TopupForm {
              * DISCORD WEBHOOK
              */
             $this->plugin->getDiscordWebhook()->sendTopup(
+                $orderId,
                 $player->getName(),
                 $rank,
                 $discord,
-                $method
+                $method,
+                "pending"
             );
 
             $player->sendMessage(
