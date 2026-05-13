@@ -11,42 +11,258 @@ use CortexPE\DiscordWebhookAPI\Embed;
 class DiscordWebhook {
 
     private Plugin $plugin;
+
     private string $webhookUrl;
 
-    public function __construct(Plugin $plugin, string $webhookUrl) {
+    public function __construct(
+        Plugin $plugin,
+        string $webhookUrl
+    ) {
+
         $this->plugin = $plugin;
+
         $this->webhookUrl = $webhookUrl;
     }
 
+    /**
+     * SEND TOPUP WEBHOOK
+     */
     public function sendTopup(
+        string $orderId,
         string $player,
         string $rank,
-        string $phone,
-        string $method
+        string $discord,
+        string $method,
+        string $status = "pending"
+    ): void {
+
+        /*
+         * WEBHOOK EMPTY
+         */
+        if ($this->webhookUrl === "") {
+
+            $this->plugin->getLogger()->warning(
+                "Discord empty webhook URL."
+            );
+
+            return;
+        }
+
+        try {
+
+            $webhook = new Webhook(
+                $this->webhookUrl
+            );
+
+            $embed = new Embed();
+
+            /*
+             * STATUS COLOR
+             */
+            $color = match (strtolower($status)) {
+
+                "success" => 0x00FF00,
+
+                "rejected" => 0xFF0000,
+
+                default => 0xFFFF00
+            };
+
+            /*
+             * STATUS TEXT
+             */
+            $statusText = strtoupper($status);
+
+            $embed->setTitle(
+                "Topup Rank"
+            );
+
+            $embed->setDescription(
+                "New rank topup order."
+            );
+
+            $embed->setColor($color);
+
+            /*
+             * FIELDS
+             */
+            $embed->addField(
+                "Order ID",
+                $orderId,
+                true
+            );
+
+            $embed->addField(
+                "Player",
+                $player,
+                true
+            );
+
+            $embed->addField(
+                "Rank",
+                $rank,
+                true
+            );
+
+            $embed->addField(
+                "Discord",
+                $discord,
+                false
+            );
+
+            $embed->addField(
+                "Payment",
+                $method,
+                true
+            );
+
+            $embed->addField(
+                "Status",
+                $statusText,
+                true
+            );
+
+            $embed->addField(
+                "Time",
+                date("Y-m-d H:i:s"),
+                false
+            );
+
+            /*
+             * FOOTER
+             */
+            $embed->setFooter(
+                "TopupRank"
+            );
+
+            /*
+             * MESSAGE
+             */
+            $message = new Message();
+
+            $message->setUsername(
+                "TopupRank"
+            );
+
+            $message->setContent(
+                "New topup order received."
+            );
+
+            $message->addEmbed(
+                $embed
+            );
+
+            /*
+             * SEND
+             */
+            $webhook->send(
+                $message
+            );
+
+        } catch (\Throwable $e) {
+
+            $this->plugin->getLogger()->error(
+                "Fail send Discord webhook: " .
+                $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     * UPDATE STATUS WEBHOOK
+     */
+    public function sendStatusUpdate(
+        string $orderId,
+        string $player,
+        string $rank,
+        string $status
     ): void {
 
         if ($this->webhookUrl === "") {
             return;
         }
 
-        $webhook = new Webhook($this->webhookUrl);
+        try {
 
-        $embed = new Embed();
+            $webhook = new Webhook(
+                $this->webhookUrl
+            );
 
-        $embed->setTitle("Topup Rank");
-        $embed->setDescription("Player make rank purchases.");
-        $embed->setColor(0x00FF00);
+            $embed = new Embed();
 
-        $embed->addField("Player", $player, true);
-        $embed->addField("Rank", $rank, true);
-        $embed->addField("Phone", $phone, false);
-        $embed->addField("Payment", $method, true);
-        $embed->addField("Time", date("Y-m-d H:i:s"), false);
+            $color = match (strtolower($status)) {
 
-        $message = new Message();
-        $message->setUsername("TopupRank");
-        $message->addEmbed($embed);
+                "success" => 0x00FF00,
 
-        $webhook->send($message);
+                "rejected" => 0xFF0000,
+
+                default => 0xFFFF00
+            };
+
+            $embed->setTitle(
+                "Status Order Updated"
+            );
+
+            $embed->setDescription(
+                "Status topup rank has changed."
+            );
+
+            $embed->setColor($color);
+
+            $embed->addField(
+                "Order ID",
+                $orderId,
+                true
+            );
+
+            $embed->addField(
+                "Player",
+                $player,
+                true
+            );
+
+            $embed->addField(
+                "Rank",
+                $rank,
+                true
+            );
+
+            $embed->addField(
+                "Status",
+                strtoupper($status),
+                true
+            );
+
+            $embed->addField(
+                "Updated",
+                date("Y-m-d H:i:s"),
+                false
+            );
+
+            $embed->setFooter(
+                "TopupRank"
+            );
+
+            $message = new Message();
+
+            $message->setUsername(
+                "TopupRank"
+            );
+
+            $message->addEmbed(
+                $embed
+            );
+
+            $webhook->send(
+                $message
+            );
+
+        } catch (\Throwable $e) {
+
+            $this->plugin->getLogger()->error(
+                "Webhook status update failed: " .
+                $e->getMessage()
+            );
+        }
     }
 }
