@@ -1,4 +1,8 @@
 default_language: "id"
+
+web-host: 0.0.0.0
+web-port: 8080
+
 discord-webhook: "https://discord.com/api/webhooks/xxxxx"
 ranks:
   §eELITE:
