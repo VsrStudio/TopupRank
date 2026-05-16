@@ -42,7 +42,7 @@ class DiscordWebhook {
         if ($this->webhookUrl === "") {
 
             $this->plugin->getLogger()->warning(
-                "Discord empty webhook URL."
+                "Discord webhook empty URL."
             );
 
             return;
@@ -162,7 +162,7 @@ class DiscordWebhook {
         } catch (\Throwable $e) {
 
             $this->plugin->getLogger()->error(
-                "Fail send Discord webhook: " .
+                "Failed to send Discord webhook: " .
                 $e->getMessage()
             );
         }
@@ -200,11 +200,11 @@ class DiscordWebhook {
             };
 
             $embed->setTitle(
-                "Status Order Updated"
+                "Order Status Updated"
             );
 
             $embed->setDescription(
-                "Status topup rank has changed."
+                "Topup rank status has changed."
             );
 
             $embed->setColor($color);
