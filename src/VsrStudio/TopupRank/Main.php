@@ -9,10 +9,13 @@ use pocketmine\player\Player;
 
 use VsrStudio\TopupRank\Forms\TopupForm;
 use VsrStudio\TopupRank\Forms\AdminForm;
+
 use VsrStudio\TopupRank\Data\OrderManager;
 use VsrStudio\TopupRank\Data\TopupRankManager;
 use VsrStudio\TopupRank\Data\LangManager;
+
 use VsrStudio\TopupRank\Utils\DiscordWebhook;
+use VsrStudio\TopupRank\Web\WebServerManager;
 
 class Main extends PluginBase {
 
@@ -21,9 +24,12 @@ class Main extends PluginBase {
     private LangManager $langManager;
     private DiscordWebhook $discordWebhook;
 
+    private WebServerManager $webServerManager;
+
     private array $config;
 
     public function onEnable(): void {
+
         $this->saveDefaultConfig();
 
         $this->config = $this->getConfig()->getAll();
@@ -34,50 +40,89 @@ class Main extends PluginBase {
         $this->saveResource("lang/id.yml");
 
         $langDir = $this->getDataFolder() . "lang/";
-        $defaultLang = $this->getConfig()->get("default_language", "id");
+
+        $defaultLang = $this->getConfig()->get(
+            "default_language",
+            "id"
+        );
 
         $this->orderManager = new OrderManager($this);
+
         $this->rankManager = new TopupRankManager($this);
-        $this->langManager = new LangManager($langDir, $defaultLang);
+
+        $this->langManager = new LangManager(
+            $langDir,
+            $defaultLang
+        );
 
         $this->discordWebhook = new DiscordWebhook(
             $this,
-            $this->getConfig()->get("discord-webhook", "")
+            $this->getConfig()->get(
+                "discord-webhook",
+                ""
+            )
         );
 
-        $this->getLogger()->info("TopupRank enabled.");
+        /*
+         * START WEB SERVER
+         */
+        $this->webServerManager = new WebServerManager(
+            $this
+        );
+
+        $this->webServerManager->start();
+
+        $this->getLogger()->info(
+            "TopupRank enabled."
+        );
     }
 
-    public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool {
+    public function onDisable(): void {
+
+        $this->webServerManager->stop();
+    }
+
+    public function onCommand(
+        CommandSender $sender,
+        Command $command,
+        string $label,
+        array $args
+    ): bool {
 
         switch ($command->getName()) {
 
             case "topuprank":
+
                 if (!$sender instanceof Player) {
-                    $sender->sendMessage("Command hanya untuk player.");
+
+                    $sender->sendMessage(
+                        "Command hanya untuk player."
+                    );
+
                     return true;
                 }
 
-                if (!$sender->hasPermission("topuprank.use")) {
-                    $sender->sendMessage("§cTidak ada permission.");
-                    return true;
-                }
+                $sender->sendForm(
+                    (new TopupForm($this))->getForm()
+                );
 
-                $sender->sendForm((new TopupForm($this))->getForm());
                 return true;
 
             case "rankadmin":
+
                 if (!$sender instanceof Player) {
-                    $sender->sendMessage("Command hanya untuk player.");
+
+                    $sender->sendMessage(
+                        "Command hanya untuk player."
+                    );
+
                     return true;
                 }
 
-                if (!$sender->hasPermission("topuprank.admin")) {
-                    $sender->sendMessage("§cTidak ada permission.");
-                    return true;
-                }
+                $sender->sendForm(
+                    (new AdminForm($this))->getForm()
+                );
 
-                $sender->sendForm((new AdminForm($this))->getForm());
                 return true;
         }
 
