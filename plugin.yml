@@ -1,6 +1,6 @@
 name: TopupRank
-main: Vsrstudio\TopupRank\Main
-version: 1.2.0-BETA
+main: VsrStudio\TopupRank\Main
+version: 1.0.0
 api: [5.0.0]
 author: VsrStudio
 description: TopupRank Sistem
