@@ -1,18 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace VsrStudio\TopupRank\Web;
 
 use Hebbinkpro\WebServer\http\message\HttpRequest;
 use Hebbinkpro\WebServer\http\message\HttpResponse;
-
 use Hebbinkpro\WebServer\http\server\HttpServerInfo;
-
 use Hebbinkpro\WebServer\router\Router;
 use Hebbinkpro\WebServer\WebServer;
 
 use VsrStudio\TopupRank\Main;
 
-class WebServerManager {
+final class WebServerManager {
 
     private Main $plugin;
 
@@ -36,104 +36,110 @@ class WebServerManager {
         $router = new Router();
 
         /*
+         * PASS STRING ONLY
+         */
+        $ordersFile =
+            $this->plugin->getDataFolder() .
+            "orders.json";
+
+        /*
          * HOME PAGE
          */
-        $router->get("/", function (
+        $router->get("/", static function (
             HttpRequest $request,
             HttpResponse $response
         ): void {
 
-            $html = '
-            <!DOCTYPE html>
+            $html = <<<HTML
+<!DOCTYPE html>
+<html lang="en">
 
-            <html lang="en">
+<head>
 
-            <head>
+<meta charset="UTF-8">
 
-                <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-                <meta name="viewport"
-                      content="width=device-width, initial-scale=1.0">
+<title>TopupRank</title>
 
-                <title>TopupRank</title>
+<style>
 
-                <style>
+body{
+    background:#0f172a;
+    font-family:Arial;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+}
 
-                    body{
-                        background:#0f172a;
-                        font-family:Arial;
-                        color:white;
-                        display:flex;
-                        justify-content:center;
-                        align-items:center;
-                        height:100vh;
-                        margin:0;
-                    }
+.card{
+    background:#1e293b;
+    padding:30px;
+    border-radius:15px;
+    width:400px;
+}
 
-                    .card{
-                        background:#1e293b;
-                        padding:30px;
-                        border-radius:15px;
-                        width:400px;
-                    }
+h1{
+    text-align:center;
+}
 
-                    h1{
-                        text-align:center;
-                    }
+input{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    margin-top:15px;
+    background:#334155;
+    color:white;
+    box-sizing:border-box;
+}
 
-                    input{
-                        width:100%;
-                        padding:12px;
-                        border:none;
-                        border-radius:10px;
-                        margin-top:15px;
-                        background:#334155;
-                        color:white;
-                        box-sizing:border-box;
-                    }
+button{
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    border:none;
+    border-radius:10px;
+    background:#3b82f6;
+    color:white;
+    cursor:pointer;
+}
 
-                    button{
-                        width:100%;
-                        padding:12px;
-                        margin-top:15px;
-                        border:none;
-                        border-radius:10px;
-                        background:#3b82f6;
-                        color:white;
-                        cursor:pointer;
-                    }
+</style>
 
-                </style>
+</head>
 
-            </head>
+<body>
 
-            <body>
+<div class="card">
 
-                <div class="card">
+<h1>Cek Pesanan</h1>
 
-                    <h1>Cek Pesanan</h1>
+<form action="/check" method="GET">
 
-                    <form action="/check" method="GET">
+<input
+    type="text"
+    name="order"
+    placeholder="Masukkan ID Order"
+    required
+>
 
-                        <input
-                            type="text"
-                            name="order"
-                            placeholder="Masukkan ID Order"
-                            required
-                        >
+<button type="submit">
+    Cek Sekarang
+</button>
 
-                        <button type="submit">
-                            Cek Sekarang
-                        </button>
+</form>
 
-                    </form>
+</div>
 
-                </div>
+</body>
 
-            </body>
-
-            </html>
-            ';
+</html>
+HTML;
 
             $response->send($html);
         });
@@ -141,46 +147,91 @@ class WebServerManager {
         /*
          * CHECK PAGE
          */
-        $router->get("/check", function (
+        $router->get("/check", static function (
             HttpRequest $request,
-            HttpResponse $response
+            HttpResponse $response,
+            string $ordersFile
         ): void {
 
             $orderId = trim(
-                $request->getURL()
+                $request
+                    ->getURL()
                     ->getQueryParam("order") ?? ""
             );
 
-            $order = $this->plugin
-                ->getOrderManager()
-                ->getOrderById($orderId);
+            if ($orderId === "") {
 
+                $response->send("
+                    <h1>ID order kosong</h1>
+                ");
+
+                return;
+            }
+
+            /*
+             * LOAD ORDERS
+             */
+            if (!file_exists($ordersFile)) {
+
+                $response->send("
+                    <h1>orders.json tidak ditemukan</h1>
+                ");
+
+                return;
+            }
+
+            $orders = json_decode(
+                file_get_contents($ordersFile),
+                true
+            ) ?? [];
+
+            $order = null;
+
+            foreach ($orders as $data) {
+
+                if (
+                    strtolower($data["id"]) ===
+                    strtolower($orderId)
+                ) {
+
+                    $order = $data;
+
+                    break;
+                }
+            }
+
+            /*
+             * ORDER NOT FOUND
+             */
             if ($order === null) {
 
-                $response->send('
+                $safeOrderId =
+                    htmlspecialchars($orderId);
+
+                $response->send("
+                <!DOCTYPE html>
+
                 <html>
 
-                <body style="
+                <body style='
                     background:#111827;
                     color:white;
                     font-family:Arial;
                     padding:30px;
-                ">
+                '>
 
                     <h1>Order Tidak Ditemukan</h1>
 
-                    <p>ID: ' .
-                    htmlspecialchars($orderId) .
-                    '</p>
+                    <p>ID: {$safeOrderId}</p>
 
-                    <a href="/" style="color:#60a5fa;">
+                    <a href='/' style='color:#60a5fa;'>
                         Kembali
                     </a>
 
                 </body>
 
                 </html>
-                ');
+                ");
 
                 return;
             }
@@ -196,7 +247,32 @@ class WebServerManager {
                 default => "#facc15"
             };
 
-            $response->send('
+            $id =
+                htmlspecialchars($order["id"]);
+
+            $gamertag =
+                htmlspecialchars($order["gamertag"]);
+
+            $rank =
+                htmlspecialchars($order["rank"]);
+
+            $discord =
+                htmlspecialchars($order["discord"]);
+
+            $method =
+                htmlspecialchars($order["method"]);
+
+            $status =
+                strtoupper(
+                    htmlspecialchars(
+                        $order["status"]
+                    )
+                );
+
+            $time =
+                htmlspecialchars($order["time"]);
+
+            $response->send("
             <!DOCTYPE html>
 
             <html>
@@ -232,54 +308,48 @@ class WebServerManager {
 
             <body>
 
-                <div class="card">
+                <div class='card'>
 
                     <h1>Status Pesanan</h1>
 
-                    <div class="item">
-                        <b>ID:</b>
-                        ' . htmlspecialchars($order["id"]) . '
+                    <div class='item'>
+                        <b>ID:</b> {$id}
                     </div>
 
-                    <div class="item">
-                        <b>Gamertag:</b>
-                        ' . htmlspecialchars($order["gamertag"]) . '
+                    <div class='item'>
+                        <b>Gamertag:</b> {$gamertag}
                     </div>
 
-                    <div class="item">
-                        <b>Rank:</b>
-                        ' . htmlspecialchars($order["rank"]) . '
+                    <div class='item'>
+                        <b>Rank:</b> {$rank}
                     </div>
 
-                    <div class="item">
-                        <b>Discord:</b>
-                        ' . htmlspecialchars($order["discord"]) . '
+                    <div class='item'>
+                        <b>Discord:</b> {$discord}
                     </div>
 
-                    <div class="item">
-                        <b>Metode:</b>
-                        ' . htmlspecialchars($order["method"]) . '
+                    <div class='item'>
+                        <b>Metode:</b> {$method}
                     </div>
 
-                    <div class="item">
+                    <div class='item'>
                         <b>Status:</b>
 
-                        <span style="
-                            color:' . $statusColor . ';
+                        <span style='
+                            color:{$statusColor};
                             font-weight:bold;
-                        ">
-                            ' . strtoupper($order["status"]) . '
+                        '>
+                            {$status}
                         </span>
                     </div>
 
-                    <div class="item">
-                        <b>Waktu:</b>
-                        ' . htmlspecialchars($order["time"]) . '
+                    <div class='item'>
+                        <b>Waktu:</b> {$time}
                     </div>
 
                     <br>
 
-                    <a href="/" style="color:#60a5fa;">
+                    <a href='/' style='color:#60a5fa;'>
                         Kembali
                     </a>
 
@@ -288,18 +358,17 @@ class WebServerManager {
             </body>
 
             </html>
-            ');
-        });
+            ");
 
-        $host = $this->plugin->getConfig()->get(
-            "web-host",
-            "0.0.0.0"
-        );
+        }, $ordersFile);
 
-        $port = (int) $this->plugin->getConfig()->get(
-            "web-port",
-            8080
-        );
+        $host = (string) $this->plugin
+            ->getConfig()
+            ->get("web-host", "0.0.0.0");
+
+        $port = (int) $this->plugin
+            ->getConfig()
+            ->get("web-port", 8080);
 
         $serverInfo = new HttpServerInfo(
             $host,
@@ -316,15 +385,19 @@ class WebServerManager {
 
             $this->webServer->start();
 
-            $this->plugin->getLogger()->info(
-                "WebServer running at {$host}:{$port}"
-            );
+            $this->plugin
+                ->getLogger()
+                ->info(
+                    "WebServer running at {$host}:{$port}"
+                );
 
         } catch (\Throwable $e) {
 
-            $this->plugin->getLogger()->error(
-                $e->getMessage()
-            );
+            $this->plugin
+                ->getLogger()
+                ->error(
+                    $e->getMessage()
+                );
         }
     }
 
