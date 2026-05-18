@@ -6,32 +6,38 @@ web-port: 8080
 discord-webhook: "https://discord.com/api/webhooks/xxxxx"
 ranks:
   ELITE:
+    name-button: "ELITE"
     price: 15.000
     image: "textures/ui/promo_bee"
     title: "§l§aVIP Rank"
     content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
   VIP:
+    name-button: "VIP"
     price: 20.000
     image: "textures/ui/promo_spider"
     title: "§l§aVIP Rank"
     content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
   MVP:
+    name-button: "MVP"
     price: 30.000
     description: "Rank premium dengan fitur khusus."
     image: "textures/ui/promo_chicken"
     title: "§l§aVIP Rank"
     content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
   Legends:
+    name-button: "Legends"
     price: 40.000
     image: "textures/ui/promo_wolf"
     title: "§l§aVIP Rank"
     content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
   Angel:
+    name-button: "Angel"
     price: 60.000
     image: "textures/ui/promo_creeper"
     title: "§l§aVIP Rank"
     content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
   ExCluSive:
+    name-button: "ExCluSive"
     price: 80.000
     image: "textures/ui/realms_key_art"
     title: "§l§aVIP Rank"
