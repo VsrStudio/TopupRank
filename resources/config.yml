@@ -5,35 +5,43 @@ web-port: 8080
 
 discord-webhook: "https://discord.com/api/webhooks/xxxxx"
 ranks:
-  §eELITE:
+  ELITE:
     price: 15.000
-    description: ""
     image: "textures/ui/promo_bee"
-  §aVIP:
+    title: "§l§aVIP Rank"
+    content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
+  VIP:
     price: 20.000
-    description: ""
     image: "textures/ui/promo_spider"
-  §bMVP:
+    title: "§l§aVIP Rank"
+    content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
+  MVP:
     price: 30.000
     description: "Rank premium dengan fitur khusus."
     image: "textures/ui/promo_chicken"
-  §0Legends:
+    title: "§l§aVIP Rank"
+    content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
+  Legends:
     price: 40.000
-    description: ""
     image: "textures/ui/promo_wolf"
-  §1Angel:
+    title: "§l§aVIP Rank"
+    content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
+  Angel:
     price: 60.000
-    description: ""
     image: "textures/ui/promo_creeper"
-  §dExCluSive:
+    title: "§l§aVIP Rank"
+    content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
+  ExCluSive:
     price: 80.000
-    description: ""
     image: "textures/ui/realms_key_art"
+    title: "§l§aVIP Rank"
+    content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
 
 payment_methods:
   - GoPay
   - DANA
   - OVO
+  - Paypal
 
 messages:
   rank_purchased: "Terima kasih! Permintaan top-up Anda sedang diproses oleh admin."
