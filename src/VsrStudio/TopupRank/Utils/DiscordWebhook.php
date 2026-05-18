@@ -50,6 +50,12 @@ class DiscordWebhook {
 
         try {
 
+            /*
+             * FORCE @ DISCORD
+             */
+            $discord =
+                "@" . ltrim($discord, "@");
+
             $webhook = new Webhook(
                 $this->webhookUrl
             );
@@ -71,14 +77,15 @@ class DiscordWebhook {
             /*
              * STATUS TEXT
              */
-            $statusText = strtoupper($status);
+            $statusText =
+                strtoupper($status);
 
             $embed->setTitle(
                 "Topup Rank"
             );
 
             $embed->setDescription(
-                "New rank topup order."
+                "New rank topup order received."
             );
 
             $embed->setColor($color);
@@ -104,10 +111,13 @@ class DiscordWebhook {
                 true
             );
 
+            /*
+             * DISCORD WITH @
+             */
             $embed->addField(
                 "Discord",
                 $discord,
-                false
+                true
             );
 
             $embed->addField(
@@ -175,6 +185,7 @@ class DiscordWebhook {
         string $orderId,
         string $player,
         string $rank,
+        string $discord,
         string $status
     ): void {
 
@@ -183,6 +194,12 @@ class DiscordWebhook {
         }
 
         try {
+
+            /*
+             * FORCE @ DISCORD
+             */
+            $discord =
+                "@" . ltrim($discord, "@");
 
             $webhook = new Webhook(
                 $this->webhookUrl
@@ -227,6 +244,15 @@ class DiscordWebhook {
                 true
             );
 
+            /*
+             * SHOW DISCORD
+             */
+            $embed->addField(
+                "Discord",
+                $discord,
+                true
+            );
+
             $embed->addField(
                 "Status",
                 strtoupper($status),
@@ -247,6 +273,10 @@ class DiscordWebhook {
 
             $message->setUsername(
                 "TopupRank"
+            );
+
+            $message->setContent(
+                "Order status updated."
             );
 
             $message->addEmbed(
