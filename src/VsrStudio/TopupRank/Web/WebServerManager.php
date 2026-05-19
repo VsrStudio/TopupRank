@@ -29,7 +29,7 @@ final class WebServerManager {
             $this->plugin
                 ->getLogger()
                 ->error(
-                    "pmmp-webserver tidak ditemukan."
+                    "pmmp-webserver not found."
                 );
 
             return;
@@ -270,7 +270,7 @@ body{
     <h1>Topup Rank</h1>
 
     <p>
-        Pilih rank terbaik untuk server kamu
+        Choose the best rank for your server
     </p>
 
 </div>
@@ -285,7 +285,7 @@ body{
 
     <div class='bottom-card'>
 
-        <h2>Cek Pesanan</h2>
+        <h2>Check Order</h2>
 
         <form
             action='/check'
@@ -296,12 +296,12 @@ body{
             <input
                 type='text'
                 name='order'
-                placeholder='Masukkan ID Order'
+                placeholder='Insert ID Order'
                 required
             >
 
             <button type='submit'>
-                Cek Status
+                Check Status
             </button>
 
         </form>
@@ -340,7 +340,7 @@ body{
             ){
 
                 $response->send("
-                    <h1>Rank tidak ditemukan</h1>
+                    <h1>Rank not found</h1>
                 ");
 
                 return;
@@ -549,7 +549,7 @@ body{
             ){
 
                 $response->send(
-                    "<h1>Rank tidak ditemukan</h1>"
+                    "<h1>Rank not found</h1>"
                 );
 
                 return;
@@ -807,7 +807,7 @@ body{
             ){
 
                 $response->send(
-                    "<h1>Data tidak lengkap</h1>"
+                    "<h1>Incomplete data</h1>"
                 );
 
                 return;
@@ -915,7 +915,7 @@ body{
 
 <div class='card'>
 
-    <h1>Pesanan Berhasil Dibuat</h1>
+    <h1>Order Successfully Created</h1>
 
     <p>
         ID Order:
@@ -932,7 +932,7 @@ body{
     </p>
 
     <a href='/' class='button'>
-        Kembali
+        Return
     </a>
 
 </div>
@@ -1081,7 +1081,7 @@ body{
     </div>
 
     <div class='item'>
-        <b>Waktu:</b>
+        <b>Time:</b>
         {$order["time"]}
     </div>
 
@@ -1093,7 +1093,7 @@ body{
             color:#60a5fa;
         '
     >
-        Kembali
+        Return
     </a>
 
 </div>
