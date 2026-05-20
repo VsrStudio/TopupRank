@@ -3,43 +3,53 @@ default_language: "id"
 web-host: 0.0.0.0
 web-port: 8080
 
+cooldown:
+form: 30
+website: 60
+
 discord-webhook: "https://discord.com/api/webhooks/xxxxx"
 ranks:
   ELITE:
     name-button: "ELITE"
     price: 15.000
-    image: "textures/ui/promo_bee"
+    image-form: "textures/ui/promo_bee"
+    image-web: "https://yourcdn.com/vip.png"
     title: "§l§aVIP Rank"
     content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
   VIP:
     name-button: "VIP"
     price: 20.000
-    image: "textures/ui/promo_spider"
+    image-form: "textures/ui/promo_spider"
+    image-web: "https://yourcdn.com/vip.png"
     title: "§l§aVIP Rank"
     content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
   MVP:
     name-button: "MVP"
     price: 30.000
     description: "Rank premium dengan fitur khusus."
-    image: "textures/ui/promo_chicken"
+    image-form: "textures/ui/promo_chicken"
+    image-web: "https://yourcdn.com/vip.png"
     title: "§l§aVIP Rank"
     content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
   Legends:
     name-button: "Legends"
     price: 40.000
-    image: "textures/ui/promo_wolf"
+    image-form: "textures/ui/promo_wolf"
+    image-web: "https://yourcdn.com/vip.png"
     title: "§l§aVIP Rank"
     content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
   Angel:
     name-button: "Angel"
     price: 60.000
-    image: "textures/ui/promo_creeper"
+    image-form: "textures/ui/promo_creeper"
+    image-web: "https://yourcdn.com/vip.png"
     title: "§l§aVIP Rank"
     content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
   ExCluSive:
     name-button: "ExCluSive"
     price: 80.000
-    image: "textures/ui/realms_key_art"
+    image-form: "textures/ui/realms_key_art"
+    image-web: "https://yourcdn.com/vip.png"
     title: "§l§aVIP Rank"
     content: "§fBenefit VIP:\n§7- Fly\n§7- Kit VIP\n§7- Prefix VIP"
 
@@ -50,9 +60,9 @@ payment_methods:
   - Paypal
 
 messages:
-  rank_purchased: "Terima kasih! Permintaan top-up Anda sedang diproses oleh admin."
-  notify_admin: "Pemain %player% telah meminta top-up rank %rank% menggunakan metode %method%."
-  invalid_phone: "Nomor telepon tidak valid. Masukkan nomor telepon yang benar."
-  invalid_gamertag: "Nama gamertag tidak valid. Masukkan nama yang benar."
-  payment_success: "Pembayaran berhasil diproses. Rank %rank% telah diberikan kepada pemain."
-  payment_rejected: "Pembayaran ditolak oleh admin."
+  rank_purchased: "Thank You! Your top-up request is being processed by the admin."
+  notify_admin: "Player %player% has requested a top-up of rank %rank% using method %method%."
+  invalid_phone: "Invalid Discord user. Please enter the correct Discord user.."
+  invalid_gamertag: "Invalid gamertag. Please enter the correct name."
+  payment_success: "Payment was successfully processed. Rank %rank% has been awarded to the player.."
+  payment_rejected: "Payment rejected by admin."
