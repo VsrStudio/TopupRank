@@ -772,6 +772,22 @@ body{
 
             $response->send($html);
         });
+        $ip =
+            $request     
+            ->getServerInfo()     
+            ->getIp();
+
+        $cooldown =    
+            $this->hasCooldown($ip);
+
+        if($cooldown !== false){
+    
+            $response->send("        
+        <h1>Too fast</h1>        
+        <p>Wait {$cooldown} seconds left.</p>
+        ");
+            return;
+        }
 
         /*
          * SUBMIT ORDER
