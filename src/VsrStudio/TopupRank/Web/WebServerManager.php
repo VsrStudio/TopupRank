@@ -15,6 +15,7 @@ use VsrStudio\TopupRank\Main;
 final class WebServerManager {
 
     private Main $plugin;
+    private array $cooldown = [];
 
     private ?WebServer $webServer = null;
 
@@ -74,7 +75,7 @@ final class WebServerManager {
                     $data["price"] ?? "0";
 
                 $image =
-                    $data["image"] ?? "";
+                    $data["image-web"] ?? "";
 
                 $safeRank =
                     urlencode($rank);
@@ -370,7 +371,7 @@ body{
 
             $image =
                 htmlspecialchars(
-                    $data["image"] ?? ""
+                    $data["image-web"] ?? ""
                 );
 
             $safeRank =
@@ -1149,6 +1150,37 @@ body{
                     $e->getMessage()
                 );
         }
+    }
+
+    private function hasCooldown(string $ip) : int|false{
+
+    $seconds =
+        (int)(
+            $this->plugin
+                ->getConfig()
+                ->getNested(
+                    "cooldown.website",
+                    60
+                )
+        );
+
+    $time =
+        time();
+
+    if(isset($this->cooldown[$ip])){
+
+        $remaining =
+            $this->cooldown[$ip] - $time;
+
+        if($remaining > 0){
+            return $remaining;
+        }
+    }
+
+    $this->cooldown[$ip] =
+        $time + $seconds;
+
+    return false;
     }
 
     public function stop() : void{
