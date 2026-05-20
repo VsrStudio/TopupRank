@@ -12,9 +12,51 @@ use VsrStudio\TopupRank\Main;
 class TopupForm {
 
     private Main $plugin;
+    private array $cooldown = [];
 
     public function __construct(Main $plugin){
         $this->plugin = $plugin;
+    }
+
+    private function hasCooldown(Player $player) : bool{
+
+    $seconds =
+        (int)(
+            $this->plugin
+                ->getConfig()
+                ->getNested(
+                    "cooldown.form",
+                    30
+                )
+        );
+
+    $name =
+        strtolower(
+            $player->getName()
+        );
+
+    $time =
+        time();
+
+    if(isset($this->cooldown[$name])){
+
+        $remaining =
+            $this->cooldown[$name] - $time;
+
+        if($remaining > 0){
+
+            $player->sendMessage(
+                "§cWait {$remaining} seconds before placing another order."
+            );
+
+            return true;
+        }
+    }
+
+    $this->cooldown[$name] =
+        $time + $seconds;
+
+    return false;
     }
 
     public function getForm() : SimpleForm{
@@ -76,7 +118,7 @@ class TopupForm {
                 $details["price"] ?? "0";
 
             $image =
-                $details["image"] ?? "";
+                $details["image-form"] ?? "";
 
             /*
              * SUPPORT PATH & URL
@@ -115,7 +157,7 @@ class TopupForm {
             $rankData["content"] ?? "";
 
         $image =
-            $rankData["image"] ?? "";
+            $details["image-form"] ?? "";
 
         /*
          * SUPPORT PATH & URL
@@ -255,6 +297,9 @@ class TopupForm {
 
                     return;
                 }
+                if($this->hasCooldown($player)){
+                    return;
+                }
 
                 /*
                  * ADD @ AGAIN
@@ -309,11 +354,11 @@ class TopupForm {
                     ){
 
                         $onlinePlayer->sendMessage(
-                            "§aTopup baru!\n" .
+                            "§aTopup new!\n" .
                             "§fID: §e{$orderId}\n" .
                             "§fPlayer: §b{$gamertag}\n" .
                             "§fRank: §a{$rank}\n" .
-                            "§fMetode: §e{$method}"
+                            "§fMethod: §e{$method}"
                         );
                     }
                 }
