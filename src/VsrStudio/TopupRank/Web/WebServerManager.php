@@ -11,6 +11,8 @@ use Hebbinkpro\WebServer\router\Router;
 use Hebbinkpro\WebServer\WebServer;
 
 use VsrStudio\TopupRank\Main;
+use VsrStudio\TopupRank\Web\AdminPanel;
+use VsrStudio\TopupRank\Web\OrderStorage;
 
 final class WebServerManager {
 
@@ -52,6 +54,19 @@ final class WebServerManager {
             $this->plugin
                 ->getDataFolder() .
                 "orders.json";
+
+        $orderStorage =
+            new OrderStorage(        
+                $ordersFile   
+            );
+
+        $adminPanel =   
+            new AdminPanel(       
+                $this->plugin,     
+                $orderStorage  
+            );
+
+        $adminPanel->register($router);
 
         /*
          * HOME
@@ -849,6 +864,9 @@ body{
                 ) ?? [];
             }
 
+            $orders =
+                $orderStorage
+                ->getOrders();
             $count =
                 count($orders) + 1;
 
@@ -861,7 +879,8 @@ body{
                     STR_PAD_LEFT
                 );
 
-            $orders[] = [
+            $orderStorage->addOrder([
+            //$orders[] = [
 
                 "id" => $orderId,
                 "gamertag" => $gamertag,
@@ -872,14 +891,14 @@ body{
                 "time" => date("Y-m-d H:i:s")
             ];
 
-            file_put_contents(
-                $ordersFile,
-                json_encode(
-                    $orders,
-                    JSON_PRETTY_PRINT |
-                    JSON_UNESCAPED_UNICODE
-                )
-            );
+            //file_put_contents(
+                //$ordersFile,
+                //json_encode(
+                    //$orders,
+                    //JSON_PRETTY_PRINT |
+                    //JSON_UNESCAPED_UNICODE
+                //)
+            //);
 
             $safeOrderId =
                 htmlspecialchars($orderId);
