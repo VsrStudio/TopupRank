@@ -11,8 +11,7 @@ use Hebbinkpro\WebServer\router\Router;
 use Hebbinkpro\WebServer\WebServer;
 
 use VsrStudio\TopupRank\Main;
-use VsrStudio\TopupRank\Web\AdminPanel;
-use VsrStudio\TopupRank\Web\OrderStorage;
+use VsrStudio\TopupRank\Web\AdminWebPanel;
 
 final class WebServerManager {
 
@@ -55,18 +54,68 @@ final class WebServerManager {
                 ->getDataFolder() .
                 "orders.json";
 
-        $orderStorage =
-            new OrderStorage(        
-                $ordersFile   
-            );
+        $adminPanel = new AdminWebPanel(
+            $this->plugin,  
+            $ordersFile
+        );
 
-        $adminPanel =   
-            new AdminPanel(       
-                $this->plugin,     
-                $orderStorage  
-            );
+        /*
+ * ADMIN LOGIN
+ */
+$router->match(
+    ["GET", "POST"],
+    "/admin",
+    function(
+        HttpRequest $request,
+        HttpResponse $response
+    ) use (
+        $adminPanel
+    ) : void {
 
-        $adminPanel->register($router);
+        $adminPanel->handleLogin(
+            $request,
+            $response
+        );
+    }
+);
+
+/*
+ * APPROVE
+ */
+$router->get(
+    "/admin/approve",
+    function(
+        HttpRequest $request,
+        HttpResponse $response
+    ) use (
+        $adminPanel
+    ) : void {
+
+        $adminPanel->approve(
+            $request,
+            $response
+        );
+    }
+);
+
+/*
+ * REJECT
+ */
+$router->get(
+    "/admin/reject",
+    function(
+        HttpRequest $request,
+        HttpResponse $response
+    ) use (
+        $adminPanel
+    ) : void {
+
+        $adminPanel->reject(
+            $request,
+            $response
+        );
+    }
+);
 
         /*
          * HOME
@@ -879,8 +928,7 @@ body{
                     STR_PAD_LEFT
                 );
 
-            $orderStorage->addOrder([
-            //$orders[] = [
+            $orders[] = [
 
                 "id" => $orderId,
                 "gamertag" => $gamertag,
@@ -891,14 +939,14 @@ body{
                 "time" => date("Y-m-d H:i:s")
             ];
 
-            //file_put_contents(
-                //$ordersFile,
-                //json_encode(
-                    //$orders,
-                    //JSON_PRETTY_PRINT |
-                    //JSON_UNESCAPED_UNICODE
-                //)
-            //);
+            file_put_contents(
+                $ordersFile,
+                json_encode(
+                    $orders,
+                    JSON_PRETTY_PRINT |
+                    JSON_UNESCAPED_UNICODE
+                )
+            );
 
             $safeOrderId =
                 htmlspecialchars($orderId);
