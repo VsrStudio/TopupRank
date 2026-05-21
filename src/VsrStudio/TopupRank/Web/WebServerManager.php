@@ -371,7 +371,7 @@ body{
 
             $image =
                 htmlspecialchars(
-                    $data["image-web"] ?? ""
+                    (string)($data["image-web"] ?? "")
                 );
 
             $safeRank =
@@ -772,22 +772,6 @@ body{
 
             $response->send($html);
         });
-        $ip =
-            $request     
-            ->getServerInfo()     
-            ->getIp();
-
-        $cooldown =    
-            $this->hasCooldown($ip);
-
-        if($cooldown !== false){
-    
-            $response->send("        
-        <h1>Too fast</h1>        
-        <p>Wait {$cooldown} seconds left.</p>
-        ");
-            return;
-        }
 
         /*
          * SUBMIT ORDER
@@ -798,6 +782,27 @@ body{
         ) use (
             $ordersFile
         ) : void {
+
+            $ip =
+                method_exists($request, "getIp")
+                    ? $request->getIp()
+                    : "unknown";
+
+            $cooldown =
+                $this->hasCooldown($ip);
+
+            if($cooldown !== false){
+
+                $response->send("
+                <h1>Too Fast</h1>
+
+                <p>
+                    Wait {$cooldown} seconds.
+                </p>
+                ");
+
+                return;
+            }
 
             parse_str(
                 $request->getBody(),
