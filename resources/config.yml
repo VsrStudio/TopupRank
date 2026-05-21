@@ -3,9 +3,14 @@ default_language: "id"
 web-host: 0.0.0.0
 web-port: 8080
 
+admin-panel:
+  enabled: true
+  username: admin
+  password: admin123
+
 cooldown:
-form: 30
-website: 60
+  form: 30
+  website: 60
 
 discord-webhook: "https://discord.com/api/webhooks/xxxxx"
 ranks:
