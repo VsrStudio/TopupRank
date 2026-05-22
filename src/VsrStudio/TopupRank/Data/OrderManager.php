@@ -142,6 +142,37 @@ class OrderManager {
     }
 
     /**
+ * UPDATE STATUS BY ID
+ */
+public function updateOrderStatus(
+    string $orderId,
+    string $status
+) : bool {
+
+    foreach($this->orders as $key => $order){
+
+        if(
+            strtolower($order["id"]) ===
+            strtolower($orderId)
+        ){
+
+            $this->orders[$key]["status"] = $status;
+
+            $this->save();
+
+            $this->logOrder(
+                $this->orders[$key],
+                $status
+            );
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+    /**
      * LOG
      */
     private function logOrder(
