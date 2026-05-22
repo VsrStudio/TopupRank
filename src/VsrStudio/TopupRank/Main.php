@@ -145,6 +145,10 @@ class Main extends PluginBase {
         return $this->langManager;
     }
 
+    public function getWebServerManager(): WebServerManager {
+        return $this->webServerManager;
+    }
+
     public function getDiscordWebhook(): DiscordWebhook {
         return $this->discordWebhook;
     }
