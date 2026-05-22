@@ -11,7 +11,6 @@ use Hebbinkpro\WebServer\router\Router;
 use Hebbinkpro\WebServer\WebServer;
 
 use VsrStudio\TopupRank\Main;
-use VsrStudio\TopupRank\Web\AdminWebPanel;
 
 final class WebServerManager {
 
@@ -49,73 +48,10 @@ final class WebServerManager {
         $paymentMethods =
             $config["payment_methods"] ?? [];
 
-        $ordersFile =
-            $this->plugin
-                ->getDataFolder() .
+        $ordersFile =    
+            $this->plugin    
+                ->getDataFolder() .    
                 "orders.json";
-
-        $adminPanel = new AdminWebPanel(
-            $this->plugin,  
-            $ordersFile
-        );
-
-        /*
- * ADMIN LOGIN
- */
-$router->match(
-    ["GET", "POST"],
-    "/admin",
-    function(
-        HttpRequest $request,
-        HttpResponse $response
-    ) use (
-        $adminPanel
-    ) : void {
-
-        $adminPanel->handleLogin(
-            $request,
-            $response
-        );
-    }
-);
-
-/*
- * APPROVE
- */
-$router->get(
-    "/admin/approve",
-    function(
-        HttpRequest $request,
-        HttpResponse $response
-    ) use (
-        $adminPanel
-    ) : void {
-
-        $adminPanel->approve(
-            $request,
-            $response
-        );
-    }
-);
-
-/*
- * REJECT
- */
-$router->get(
-    "/admin/reject",
-    function(
-        HttpRequest $request,
-        HttpResponse $response
-    ) use (
-        $adminPanel
-    ) : void {
-
-        $adminPanel->reject(
-            $request,
-            $response
-        );
-    }
-);
 
         /*
          * HOME
@@ -1192,6 +1128,440 @@ body{
 </html>
 ");
         });
+
+        /*
+ * =========================================
+ * ADMIN LOGIN
+ * =========================================
+ */
+$router->get("/admin", function(
+    HttpRequest $request,
+    HttpResponse $response
+) : void {
+
+    $html = "
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset='UTF-8'>
+
+<title>Admin Login</title>
+
+<style>
+
+body{
+    background:#0f172a;
+    font-family:Arial;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    color:white;
+}
+
+.card{
+    background:#1e293b;
+    padding:35px;
+    border-radius:20px;
+    width:400px;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    margin-top:15px;
+    border:none;
+    border-radius:12px;
+    background:#334155;
+    color:white;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    margin-top:20px;
+    border:none;
+    border-radius:12px;
+    background:#3b82f6;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class='card'>
+
+<h1>Admin Login</h1>
+
+<form method='POST' action='/admin/login'>
+
+<input
+    type='text'
+    name='username'
+    placeholder='Username'
+    required
+>
+
+<input
+    type='password'
+    name='password'
+    placeholder='Password'
+    required
+>
+
+<button type='submit'>
+    Login
+</button>
+
+</form>
+
+</div>
+
+</body>
+
+</html>
+";
+
+    $response->send($html);
+});
+
+/*
+ * =========================================
+ * ADMIN LOGIN POST
+ * =========================================
+ */
+$router->post("/admin/login", function(
+    HttpRequest $request,
+    HttpResponse $response
+) : void {
+
+    parse_str(
+        $request->getBody(),
+        $body
+    );
+
+    $username =
+        $body["username"] ?? "";
+
+    $password =
+        $body["password"] ?? "";
+
+    $config =
+        $this->plugin
+            ->getConfig();
+
+    $adminUser =
+        $config->getNested(
+            "web-admin.username",
+            "admin"
+        );
+
+    $adminPass =
+        $config->getNested(
+            "web-admin.password",
+            "12345"
+        );
+
+    if(
+        $username !== $adminUser ||
+        $password !== $adminPass
+    ){
+
+        $response->send("
+        <h1>Login failed</h1>
+        ");
+
+        return;
+    }
+
+    $orders =
+        $this->plugin
+            ->getOrderManager()
+            ->getOrders();
+
+    $orderHtml = "";
+
+    foreach(array_reverse($orders) as $order){
+
+        $statusColor = match(
+            strtolower($order["status"])
+        ){
+
+            "success" => "#22c55e",
+
+            "rejected" => "#ef4444",
+
+            default => "#facc15"
+        };
+
+        $safeId =
+            htmlspecialchars($order["id"]);
+
+        $orderHtml .= "
+
+<div class='order'>
+
+<div class='top'>
+
+<h2>{$safeId}</h2>
+
+<button onclick=\"copyOrder('{$safeId}')\">
+Copy ID
+</button>
+
+</div>
+
+<p>
+<b>Player:</b>
+{$order["gamertag"]}
+</p>
+
+<p>
+<b>Rank:</b>
+{$order["rank"]}
+</p>
+
+<p>
+<b>Discord:</b>
+{$order["discord"]}
+</p>
+
+<p>
+<b>Method:</b>
+{$order["method"]}
+</p>
+
+<p>
+<b>Status:</b>
+
+<span style='color:{$statusColor};font-weight:bold;'>
+
+" . strtoupper($order["status"]) . "
+
+</span>
+
+</p>
+
+<div class='buttons'>
+
+<a
+    href='/admin/approve?id={$safeId}'
+    class='approve'
+>
+Approve
+</a>
+
+<a
+    href='/admin/reject?id={$safeId}'
+    class='reject'
+>
+Reject
+</a>
+
+</div>
+
+</div>
+";
+    }
+
+    $response->send("
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset='UTF-8'>
+
+<title>Admin Panel</title>
+
+<style>
+
+body{
+    background:#0f172a;
+    font-family:Arial;
+    color:white;
+    padding:30px;
+}
+
+.order{
+    background:#1e293b;
+    padding:25px;
+    border-radius:20px;
+    margin-bottom:20px;
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+button{
+    padding:10px 15px;
+    border:none;
+    border-radius:10px;
+    background:#3b82f6;
+    color:white;
+    cursor:pointer;
+}
+
+.buttons{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+.approve,
+.reject{
+    flex:1;
+    text-align:center;
+    padding:14px;
+    border-radius:12px;
+    text-decoration:none;
+    color:white;
+    font-weight:bold;
+}
+
+.approve{
+    background:#22c55e;
+}
+
+.reject{
+    background:#ef4444;
+}
+
+</style>
+
+<script>
+
+function copyOrder(id){
+
+    navigator.clipboard.writeText(id);
+
+    alert('Copied: ' + id);
+}
+
+</script>
+
+</head>
+
+<body>
+
+<h1>Admin Panel</h1>
+
+{$orderHtml}
+
+</body>
+
+</html>
+");
+});
+
+/*
+ * =========================================
+ * APPROVE ORDER
+ * =========================================
+ */
+$router->get("/admin/approve", function(
+    HttpRequest $request,
+    HttpResponse $response
+) : void {
+
+    $id =
+        $request
+            ->getURL()
+            ->getQueryParam("id") ?? "";
+
+    $order =
+        $this->plugin
+            ->getOrderManager()
+            ->getOrderById($id);
+
+    if($order === null){
+
+        $response->send(
+            "<h1>Order not found</h1>"
+        );
+
+        return;
+    }
+
+    $this->plugin
+        ->getOrderManager()
+        ->updateOrderStatus(
+            $id,
+            "success"
+        );
+
+    $this->plugin
+        ->getRankManager()
+        ->grantRank(
+            $order["gamertag"],
+            $order["rank"]
+        );
+
+    $response->send("
+    <h1>Order approved</h1>
+
+    <a href='/admin'>
+        Return
+    </a>
+    ");
+});
+
+/*
+ * =========================================
+ * REJECT ORDER
+ * =========================================
+ */
+$router->get("/admin/reject", function(
+    HttpRequest $request,
+    HttpResponse $response
+) : void {
+
+    $id =
+        $request
+            ->getURL()
+            ->getQueryParam("id") ?? "";
+
+    $order =
+        $this->plugin
+            ->getOrderManager()
+            ->getOrderById($id);
+
+    if($order === null){
+
+        $response->send(
+            "<h1>Order not found</h1>"
+        );
+
+        return;
+    }
+
+    $this->plugin
+        ->getOrderManager()
+        ->updateOrderStatus(
+            $id,
+            "rejected"
+        );
+
+    $response->send("
+    <h1>Order rejected</h1>
+
+    <a href='/admin'>
+        Return
+    </a>
+    ");
+});
 
         $host = (string)
             $this->plugin
