@@ -53,6 +53,12 @@ final class WebServerManager {
                 ->getDataFolder() .    
                 "orders.json";
 
+         /*
+         * IMPORTANT
+         */
+        $manager = $this;
+    }
+
         /*
          * HOME
          * FORM UTAMA
@@ -780,7 +786,8 @@ body{
             HttpRequest $request,
             HttpResponse $response
         ) use (
-            $ordersFile
+            $ordersFile,
+            $manager
         ) : void {
 
             $ip =
@@ -789,7 +796,7 @@ body{
                     : "unknown";
 
             $cooldown =
-                $this->hasCooldown($ip);
+                $manager->hasCooldown($ip);
 
             if($cooldown !== false){
 
@@ -1241,6 +1248,8 @@ button{
 $router->post("/admin/login", function(
     HttpRequest $request,
     HttpResponse $response
+) use (    
+    $plugin
 ) : void {
 
     parse_str(
@@ -1610,7 +1619,7 @@ $router->get("/admin/reject", function(
         }
     }
 
-    private function hasCooldown(string $ip) : int|false{
+    public function hasCooldown(string $ip) : int|false{
 
     $seconds =
         (int)(
