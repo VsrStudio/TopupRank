@@ -3,10 +3,9 @@ default_language: "id"
 web-host: 0.0.0.0
 web-port: 8080
 
-admin-panel:
-  enabled: true
-  username: admin
-  password: admin123
+web-admin:
+  username: "admin"
+  password: "12345"
 
 cooldown:
   form: 30
