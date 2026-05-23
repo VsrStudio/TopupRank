@@ -170,7 +170,32 @@ public function updateOrderStatus(
     }
 
     return false;
-}
+    }
+
+    public function hasPendingOrder(string $gamertag) : bool{
+
+    $gamertag = strtolower(trim($gamertag));
+
+    foreach($this->getOrders() as $order){
+
+        $orderGamertag = strtolower(
+            trim((string)($order["gamertag"] ?? ""))
+        );
+
+        $status = strtolower(
+            trim((string)($order["status"] ?? "pending"))
+        );
+
+        if(
+            $orderGamertag === $gamertag &&
+            $status === "pending"
+        ){
+            return true;
+        }
+    }
+
+    return false;
+    }
 
     /**
      * LOG
